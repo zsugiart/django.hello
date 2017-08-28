@@ -25,11 +25,22 @@ SECRET_KEY = 'arl%1+5u@ni4ix#5o7h5bl@#i87c#zg9#h0ua*90d2znl8hkt6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#@ ================================================================================
+#@
+#@ ================================================================================
+
+#@ ALLOWED_HOSTS
+#@ - set to ['*'] to allow connection from any address in the network
+#@
+ALLOWED_HOSTS = ['*']
 
 
-# Application definition
-
+#@ INSTALLED_APPS
+#@ - added libraries:
+#@   modernrpc, rest_framework, social_django, bootstrap3
+#@ - registered apps:
+#@   Hello (default)
+#@
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,22 +51,61 @@ INSTALLED_APPS = [
     # --- Libraries
     'modernrpc',            # for rpc.py files, xml-json rpc calls & control
     'rest_framework',       # for rest API (JSON, JSONP) used in view
+    'social_django',        # for social authentication (FB, TWITTER, ETC)
+    'bootstrap3',           # for bootstrap3 templates
     # --- APPS
-    'Hello'
+    'Hello',
 ]
 
-# for 'modernrpc' library:
+
+
+#@ MODERNRPC_METHODS_MODULES
+#@ - registers Hello.api_rpc
+#@
 MODERNRPC_METHODS_MODULES = [
-    'Hello.api_rpc'
-]
+        'Hello.api_rpc'
+    ]
 
-# for REST_FRAMEWORK
+#@ REST_FRAMEWORK
+#@ - default rest framework rendered
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework_jsonp.renderers.JSONPRenderer',
-    ),
-}
+        'DEFAULT_RENDERER_CLASSES': (
+            'rest_framework_jsonp.renderers.JSONPRenderer',
+        ),
+    }
 
+
+#@ AUTHENTICATION_BACKENDS
+#@ - for social auth, registered: Twitter, Google, and Facebook
+#@ TODO: instruction to register
+AUTHENTICATION_BACKENDS = (
+        #'social_core.backends.github.GithubOAuth2',
+        'social_core.backends.twitter.TwitterOAuth',
+        #'social_core.backends.google.GoogleOAuth2',
+        'social_core.backends.facebook.FacebookOAuth2',
+
+        'django.contrib.auth.backends.ModelBackend',
+    )
+
+#@ LOGIN_URL
+#@ - default: set to /login
+LOGIN_URL = '/account/login/'
+
+#@ LOGOUT URL
+#@ - default: set to /logout
+LOGOUT_URL = '/account/logout/'
+
+#@ LOGIN REDIRECT
+#@ - after login, go to server root
+LOGIN_REDIRECT_URL = '/'
+
+
+
+# // -------------------------------------------------------------------------------------------
+
+#@ MIDDLEWARE
+#@  - added socialauth ['social_django.middleware.SocialAuthExceptionMiddleware']
+#@    because common middleware is installed by default APPEND_SLASH is set to True
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -64,14 +114,29 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    ## socialauth
+     'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
+#@ ROOT URL CONFIG ---
+#@  - set root url file to be in APP_CORE.urls
+#@
 ROOT_URLCONF = 'APP_CORE.urls'
 
+#@ TEMPLATES CONFIG ---
+#@ - sets default template within APP_CORE/templates/
+#@  - added social auth context processors:
+#@     social_django.context_processors.backends and
+#@     social_django.context_processors.login_redirect
+#@
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            'templates',    # look into each app directory
+            BASE_DIR+'/APP_CORE/templates', # but also in APP_CORE/templates
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -79,6 +144,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',       # social auth
+                'social_django.context_processors.login_redirect', # social auth
             ],
         },
     },
@@ -90,6 +157,8 @@ WSGI_APPLICATION = 'APP_CORE.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
+#@ DATABASES
+#@ - changed default to MYSQL backend. change NAME, USER, PASSWORD, HOST, PORT accordingly.
 DATABASES = {
     'default':{
         'ENGINE':'django.db.backends.mysql',
@@ -99,10 +168,10 @@ DATABASES = {
         'HOST':'localhost',
         'PORT': '',
     },
-    'not-default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    # 'theoriginal-default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'), #<- this file is deleted. We don't need this
+    # }
 }
 
 
@@ -142,4 +211,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+#@ STATIC_URL
+#@  - set to default /static
+#@
 STATIC_URL = '/static/'
+
+# Add these new lines
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'APP_CORE/static'),
+)
+
+#@ STATIC_ROOT
+#@  - set to be under APP_CORE/static/
+#@
+# STATIC_ROOT = os.path.join(BASE_DIR, "APP_CORE/static")
+
+# STATICFILES_FINDERS = (
+# 'django.contrib.staticfiles.finders.FileSystemFinder',
+# 'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+# #'django.contrib.staticfiles.finders.DefaultStorageFinder',
+# )

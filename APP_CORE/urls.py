@@ -13,10 +13,39 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.conf.urls import include,url
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from . import views
+from Hello import views as hello_views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^hello/', include('Hello.urls'))
-]
+
+    # no name needed. use admin:index
+    url(r'^admin/', include(admin.site.urls) ),
+
+    # for default template location - see APP_CORE
+    url(r'^account/login/$', auth_views.login, {'template_name': 'login.html'},     name="url>login"),
+    url(r'^account/logout/$', auth_views.logout, {'next_page': '/account/login/'},  name="url>logout"),
+    url(r'^account/signup/$', views.signup,                                         name="url>signup"),
+
+    # point project root / to ...
+    # Hello.urls
+    url(r'^$', hello_views.home,           name="url>home"),
+
+    # app1. Hello
+    # map hello/ to Hello.urls
+    url(r'^hello/', include('Hello.urls'), name="hello"),
+
+    # --- add other app here ----
+
+    # --- packages
+
+
+
+
+    url(r'^oauth/', include('social_django.urls', namespace='social')),  # social auth
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

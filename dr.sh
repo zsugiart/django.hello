@@ -19,11 +19,14 @@ __SCRIPT_NAME="builder"
 # HELPER METHOD
 # =============================================================================================================
 
-
 function log_info()
 {
-	# modify accordingly if you want msg to go to files etc
 	echo "`date +'%Y.%m.%d %H:%M:%S'` | $__SCRIPT_NAME | INFO  | $1"
+}
+
+function log_header()
+{
+	echo -e "\033[94m`date +'%Y.%m.%d %H:%M:%S'` | $__SCRIPT_NAME | # $1\033[0m"
 }
 
 function log_warn()
@@ -58,6 +61,8 @@ function cmd_help() {
 
 function __venvcheck() {
 
+	log_header "VirtualEnv check"
+
   if [ ! -e .virtualenv/bin/activate ]; then
     log_error "directory .virtualenv is not found. To prepare working env and download necessary packages, please run:"
     log_error "./build.sh env "
@@ -75,7 +80,7 @@ function __venvcheck() {
   fi
 
 	if [[ $1 == "-d" ]]; then
-	  log_info "django project system check..."
+	  log_info "django project system check"
 	  python manage.py check
 	  if [ $? != 0 ]; then
 	    log_error "Something is screwed up with your Django code, can you check above?"
@@ -104,9 +109,8 @@ function __iferrmsg() {
 #@
 #% </doc:>
 function cmd_env() {
-  echo "-----------------------------------------------------------------------------------"
-  log_info "### preparing environment ###"
-  echo "-----------------------------------------------------------------------------------"
+
+  log_header "================================ ENV ====================================="
 
   if [ ! -d .virtualenv ]; then
     log_info "preparing virtual env environment in $PWD/.virtualenv"
@@ -140,50 +144,88 @@ function cmd_env() {
 }
 
 #% <doc:>
-#@ run
+#@ run <1:hostport>
 #@   checks if env is activated, if so:
-#@   runs django migration commands, do a git status,
+#@   runs python manage.py, check its result,
+#@   if OK, do django migration commands, git status,
 #@   and runserver so we can work on our apps.
+#@   [params]
+#@     <1:hostport> if specified, will use the specified hostname eg. hostname:6666
 #@   //-> need virtualenv activation
 #@   //-> need a working DB config and settings.py updated
 #@
 #% </doc:>
 function cmd_run() {
+
+	log_header "================================ RUN ====================================="
+
   __venvcheck -d  # we check if virtualenv is setup
-  log_info "----- django db migrations -----"
-  python manage.py makemigrations
-  __iferrmsg "unable to prepare migrations!"
-  python manage.py migrate
-  log_info "----- git status -----"
-  git status
-  log_info "----- runserver -----"
-  python manage.py runserver
+
+	log_header "test run"
+		python manage.py test
+		__iferrmsg "Test run detected errors, please fix above. Aborting run."
+
+  log_header "db migration preps"
+	  python manage.py makemigrations
+	  __iferrmsg "unable to prepare migrations!"
+	  python manage.py migrate
+
+  log_header "git status"
+  	git status
+
+	cmd_qrun "$1"
+}
+
+#% <doc:>
+#@ qrun <1:hostport>
+#@   quick run ! don't check for safety. Just! run!
+#@   [params]
+#@     <1:hostport> if specified, will use the specified hostname eg. hostname:6666
+#@   //-> don't need nothing. fuck safety!
+#@
+#% </doc:>
+function cmd_qrun()
+{
+	log_header "runserver"
+		hostname="127.0.0.1:8000"
+		if [ "$1" != "" ]; then
+			log_warn "hostport override provided [ $1 ]"
+			hostname="$1";
+		else
+			log_info "using standard hostport [ $hostname ]"
+	  fi
+	  python manage.py runserver $hostname --insecure
 }
 
 
 #% <doc:>
-#@ pip [-u]
+#@ pip <1:flag [-u] >
 #@   compare current pip packages against requirements.txt.
-#@   if -u is specified, it would automatically update requirements.txt
-#@   if diff is detected.
+#@   [params]
+#@      <1:flag> if -u is specified, will update requirements.txt if diff is found
 #@   //-> need virtualenv activation
 #@
 #% </doc:>
 function cmd_pip() {
+
+	log_header "================================ PIP ====================================="
+
   __venvcheck   # we check if virtualenv is setup
   pip freeze > .requirements.now
-	log_info "---- PIP: comparing current vs requirements.txt ----"
+
+	log_header "comparing current packages with [requirements.txt]"
 	diff -y .requirements.now requirements.txt > .diff.tmp
 	if [ $? == 0 ]; then
 		log_info "requirements.txt up to date."
 		cat requirements.txt
 	elif [ "$1" == "-u" ]; then # if -u specified, update requirements.txt
+		log_info "[-u] flag specified & diff detected - updating [requirements.txt]:"
 		mv .requirements.now requirements.txt
-		log_info "[-u] flag specified & diff detected - requirements.txt updated"
 		cat requirements.txt
+		log_header "git status"
+		git status | grep requirements.txt
 	else # else, discard tmp file, back to 0
-		rm .requirements.now &> /dev/null
-		rm .diff.tmp &> /dev/null
+		cat .diff.tmp
 	fi
 	rm .requirements.now &> /dev/null
 	rm .diff.tmp &> /dev/null

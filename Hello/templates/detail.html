@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Hello Detail{% endblock %}
+{% block content %}
+
+<h3>ID={{hello.id}} // {{ hello.label }}</h3>
+is good: {{hello.isGood}} <br />
+created: {{hello.date_c}} <br/>
+updated: {{hello.date_u}}
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Hello Detail{% endblock %}
+{% block content %}
+
+<h1>Hello Django</h1>
+
+<h3>How many hellos do we got?</h3>
+
+{% if not list_hello %}
+  <!-- if list_hello is not there -->
+  <p><b>none!</b> because you have not inserted any Hellos in the DB.
+    Maybe go ahead a do that first. Use <a href="/admin/">the admin panel</a> maybe? </p>
+
+{% else %}
+  <!-- if there is something there -->
+  <p>We've got {{ list_hello|length }} Hello record(s) in the DB:</p>
+  <p><a href="{%url 'admin:index' %}">Add more?</p>
+  <ul>
+    {% for hello in list_hello %}
+    <li><a href="{% url 'url>hello.detail' hello.id %}">{{ hello.label }}</a></li>
+    {% endfor %}
+  </ul>
+
+{% endif %}
+
+{% endblock %}

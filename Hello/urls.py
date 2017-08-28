@@ -10,21 +10,20 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from modernrpc.views import RPCEntryPoint
 
-
 # /hello
 urlpatterns = [
 
 # ** VIEWS **
 # /v/*
-    url(r'^v/$', views.index, name='index'),
-    url(r'^v/(?P<id>[0-9]+)/$', views.detail, name='detail'),
+    url(r'^$', views.index,                     name='url>hello.index'),
+    url(r'^(?P<id>[0-9]+)/$', views.detail,     name='url>hello.detail'),
 
 # ** API **
 # /api/rest/* (JSON RESTFUL)
 # /api/rpc/*  (XML/JSON RPC)
 
-    url(r'^api/rest/', api_rest.HelloList.as_view()),
-    url(r'^api/rpc/', RPCEntryPoint.as_view()),
+    url(r'^api/rest/', api_rest.HelloList.as_view(), name = "url>hello.api.rest"),
+    url(r'^api/rpc/', RPCEntryPoint.as_view(),       name = "url>hello.api.rpc"),
 
 ]
 
