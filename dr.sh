@@ -186,7 +186,7 @@ function cmd_run() {
 #% </doc:>
 function cmd_qrun()
 {
-	log_header "runserver"
+		log_header "runserver"
 		hostname="127.0.0.1:8000"
 		if [ "$1" != "" ]; then
 			log_warn "hostport override provided [ $1 ]"
@@ -195,6 +195,28 @@ function cmd_qrun()
 			log_info "using standard hostport [ $hostname ]"
 	  fi
 	  python manage.py runserver $hostname --insecure
+}
+
+
+function cmd_shell()
+{
+	log_header "=============================== SHELL ===================================="
+
+	__venvcheck -d  # we check if virtualenv is setup
+
+	log_header "test run"
+		python manage.py test
+		__iferrmsg "Test run detected errors, please fix above. Aborting run."
+
+	log_header "db migration preps"
+		python manage.py makemigrations
+		__iferrmsg "unable to prepare migrations!"
+		python manage.py migrate
+
+	log_header "git status"
+		git status
+
+	python manage.py shell
 }
 
 

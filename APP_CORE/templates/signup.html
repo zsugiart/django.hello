@@ -1,11 +1,29 @@
 {% extends 'base.html' %}
-{% block title %}Signup{% endblock %}
+{% block title %}{% ui_label "title.signup" %}{% endblock %}
 
 {% block content %}
   <h2>Sign up</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Sign up</button>
+
+  <form class="form-horizontal" role="form" action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% for field in form %}
+      <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+              <span class="text-danger small">{{ field.errors }}</span>
+          </div>
+          <label class="control-label col-sm-2" for="song_title">{{ field.label_tag }}</label>
+          <div class="col-sm-10">{{ field }}</div>
+      </div>
+  {% endfor %}
+
+  <input type="submit" value="Signup"
+         class="btn btn-primary pull-right" />
+
+  {% if form.errors %}
+      <p class=" label label-danger">
+          {% ui_label "msg.auth.fail" %}
+      </p>
+  {% endif %}
+  
   </form>
 {% endblock content %}

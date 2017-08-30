@@ -30,7 +30,7 @@ urlpatterns = [
     # for default template location - see APP_CORE
     url(r'^account/login/$', auth_views.login, {'template_name': 'login.html'},     name="url>login"),
     url(r'^account/logout/$', auth_views.logout, {'next_page': '/account/login/'},  name="url>logout"),
-    url(r'^account/signup/$', views.signup,                                         name="url>signup"),
+    url(r'^account/signup/$', views.UserFormView.as_view(), name="url>signup"),
 
     # point project root / to ...
     # Hello.urls
@@ -38,14 +38,8 @@ urlpatterns = [
 
     # app1. Hello
     # map hello/ to Hello.urls
-    url(r'^hello/', include('Hello.urls'), name="hello"),
+    url(r'^hello/', include('Hello.urls')),
 
     # --- add other app here ----
 
-    # --- packages
-
-
-
-
-    url(r'^oauth/', include('social_django.urls', namespace='social')),  # social auth
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css?family=Baloo+Bhaijaan');
+
+a.apptitle {
+  font-family: 'Baloo Bhaijaan';
+  float: left;
+  font-size: 22px;
+  line-height: 20px;
+  height: 50px;
+  text-decoration: none;
+  color: #000;
+}
+
+.appversion {
+  color: #ddd;
+}

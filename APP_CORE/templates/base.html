@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -8,11 +10,10 @@
             {% block title %}{% endblock %}
         </title>
 
-        {% load static %}
-
         {% block stylesheets %}
             <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
             <link href="{% static "css/bootstrap-theme.min.css" %}" rel="stylesheet">
+            <link href="{% static "css/project.css" %}" rel="stylesheet">
         {% endblock %}
     </head>
     <body>
@@ -20,23 +21,33 @@
         <div class="navbar navbar-default navbar-static-top" role="navigation">
             <div class="container">
                 <div class="navbar-header">
+
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="{% url 'url>home' %}">
-                        {% block brand %}{% endblock %}
+
+                    <a class="apptitle" href="{% url 'url>home' %}">
+                       <img src="{% static "img/logo.png" style='float:left' %}" />
+                       {% ui_config "appname" %} {% ui_config "version" %}
                     </a>
+
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         {% block navbar %}{% endblock %}
+                        <li><a href="{% url 'url>hello' %}">Hello-Menu</a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         {% block navbar_right %}
-                            {% if user.is_authenticated %}
-                                <li>{{ user.username }}<br />sub info</li>
+                                {% if user.is_authenticated %}
+                                    <li>
+                                        <a href="#">
+                                            <span class="glyphicon glyphicon-user"></span>
+                                            {{ user.username }}
+                                        </a>
+                                    </li>
                                 {% if user.is_staff %}
                                     <li>
                                         <a href="{% url 'admin:index' %}">

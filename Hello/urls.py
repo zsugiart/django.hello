@@ -15,7 +15,7 @@ urlpatterns = [
 
 # ** VIEWS **
 # /v/*
-    url(r'^$', views.index,                     name='url>hello.index'),
+    url(r'^$', views.index,                     name='url>hello'),
     url(r'^(?P<id>[0-9]+)/$', views.detail,     name='url>hello.detail'),
 
 # ** API **

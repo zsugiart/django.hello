@@ -4,6 +4,7 @@ import base64
 import hashlib
 from Crypto import Random
 from Crypto.Cipher import AES
+import appconfig
 
 # thanks https://stackoverflow.com/questions/12524994/encrypt-decrypt-using-pycrypto-aes-256
 class AESCipher(object):

@@ -51,8 +51,6 @@ INSTALLED_APPS = [
     # --- Libraries
     'modernrpc',            # for rpc.py files, xml-json rpc calls & control
     'rest_framework',       # for rest API (JSON, JSONP) used in view
-    'social_django',        # for social authentication (FB, TWITTER, ETC)
-    'bootstrap3',           # for bootstrap3 templates
     # --- APPS
     'Hello',
 ]
@@ -75,18 +73,6 @@ REST_FRAMEWORK = {
     }
 
 
-#@ AUTHENTICATION_BACKENDS
-#@ - for social auth, registered: Twitter, Google, and Facebook
-#@ TODO: instruction to register
-AUTHENTICATION_BACKENDS = (
-        #'social_core.backends.github.GithubOAuth2',
-        'social_core.backends.twitter.TwitterOAuth',
-        #'social_core.backends.google.GoogleOAuth2',
-        'social_core.backends.facebook.FacebookOAuth2',
-
-        'django.contrib.auth.backends.ModelBackend',
-    )
-
 #@ LOGIN_URL
 #@ - default: set to /login
 LOGIN_URL = '/account/login/'
@@ -100,12 +86,6 @@ LOGOUT_URL = '/account/logout/'
 LOGIN_REDIRECT_URL = '/'
 
 
-
-# // -------------------------------------------------------------------------------------------
-
-#@ MIDDLEWARE
-#@  - added socialauth ['social_django.middleware.SocialAuthExceptionMiddleware']
-#@    because common middleware is installed by default APPEND_SLASH is set to True
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -114,9 +94,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    ## socialauth
-     'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 #@ ROOT URL CONFIG ---
@@ -126,10 +103,9 @@ ROOT_URLCONF = 'APP_CORE.urls'
 
 #@ TEMPLATES CONFIG ---
 #@ - sets default template within APP_CORE/templates/
-#@  - added social auth context processors:
-#@     social_django.context_processors.backends and
-#@     social_django.context_processors.login_redirect
-#@
+#@ - added OPTIONS.libraries to load APP_CORE.templatetags.tags_project
+#@     tags_project.py becomes placeholder for project wide template tags_project
+#@ - added OPTIONS.builtin to load tags_builtin.py as builtin template tags
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -139,13 +115,21 @@ TEMPLATES = [
         ],
         'APP_DIRS': True,
         'OPTIONS': {
+            # tags registered here can be loaded from all apps within
+            # this projects
+            'libraries': {
+                'tags_project':'APP_CORE.templatetags.tags_project',
+            },
+            # tags registered here gets baked into django template
+            # and are automatically loadeds
+            'builtins': [
+                'APP_CORE.templatetags.tags_builtin',
+            ],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'social_django.context_processors.backends',       # social auth
-                'social_django.context_processors.login_redirect', # social auth
             ],
         },
     },
