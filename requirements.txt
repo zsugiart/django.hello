@@ -1,6 +1,6 @@
 certifi==2017.7.27.1
 chardet==3.0.4
-Django==1.11.4
+Django==1.11.23
 django-bootstrap3==9.0.0
 django-modern-rpc==0.8.0
 djangorestframework==3.6.3
