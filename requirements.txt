@@ -3,7 +3,7 @@ chardet==3.0.4
 Django==1.11.4
 django-bootstrap3==9.0.0
 django-modern-rpc==0.8.0
-djangorestframework==3.6.3
+djangorestframework==3.11.2
 djangorestframework-jsonp==1.0.2
 idna==2.6
 image==1.5.11
